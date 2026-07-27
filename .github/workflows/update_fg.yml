@@ -36,6 +36,7 @@ jobs:
         git add fg_data.json
         if ! git diff --staged --quiet; then
           git commit -m "Update F&G index"
+          git pull --rebase origin main
           git push
         else
           echo "No changes to commit"
