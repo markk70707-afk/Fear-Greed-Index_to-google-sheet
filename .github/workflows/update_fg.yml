@@ -1,0 +1,38 @@
+name: Update Fear and Greed Index
+
+on:
+  schedule:
+    # UTC 기준 21:00 = 한국 시간(KST) 오전 6:00 (화~토 실행)
+    - cron: '0 21 * * 1-5'
+  workflow_dispatch: # 깃허브 웹에서 수동 실행 버튼 활성화
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cloudscraper pytz
+
+    - name: Run Scraper
+      run: python fg_scraper.py
+
+    - name: Commit and Push
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add fg_data.json
+        # 수치가 바뀌어 diff가 있을 때만 커밋 발행
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update F&G index" && git push)
