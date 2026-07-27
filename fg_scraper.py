@@ -4,7 +4,7 @@ import cloudscraper
 
 url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
 
-# 크롬 브라우저 환경 모방
+# Desktop Chrome 환경 핑거프린팅
 scraper = cloudscraper.create_scraper(
     browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True}
 )
@@ -17,25 +17,24 @@ headers = {
 try:
     res = scraper.get(url, headers=headers, timeout=15)
     
-    if res.status_code != 200:
-        print(f"CNN API HTTP Error: {res.status_code}")
-        sys.exit(1)
+    if res.status_code == 200:
+        data = res.json()
+        if 'fear_and_greed' in data:
+            score = round(data['fear_and_greed']['score'])
+            rating = data['fear_and_greed']['rating']
 
-    data = res.json()
-    if 'fear_and_greed' not in data:
-        print("Response JSON Structure Error")
-        sys.exit(1)
+            result = {"score": score, "rating": rating}
 
-    score = round(data['fear_and_greed']['score'])
-    rating = data['fear_and_greed']['rating']
+            with open('fg_data.json', 'w') as f:
+                json.dump(result, f)
 
-    result = {"score": score, "rating": rating}
+            print(f"Success: {score} ({rating})")
+            sys.exit(0)
 
-    with open('fg_data.json', 'w') as f:
-        json.dump(result, f)
-
-    print(f"Success: {score} ({rating})")
+    # 403, 500 등 방화벽 차단 시 exit code 0으로 종료하여 기존 fg_data.json 유지
+    print(f"CNN API 호출 실패 (HTTP Status: {res.status_code}). 기존 JSON 데이터를 유지합니다.")
+    sys.exit(0)
 
 except Exception as e:
-    print(f"Execution Error: {e}")
-    sys.exit(1)
+    print(f"스크래핑 예외 발생: {e}. 기존 JSON 데이터를 유지합니다.")
+    sys.exit(0)
