@@ -31,10 +31,10 @@ try:
             print(f"Success: {score} ({rating})")
             sys.exit(0)
 
-    # 403, 500 등 방화벽 차단 시 exit code 0으로 종료하여 기존 fg_data.json 유지
-    print(f"CNN API 호출 실패 (HTTP Status: {res.status_code}). 기존 JSON 데이터를 유지합니다.")
+    # 차단 시 터지지 않고 기존 JSON 데이터 유지
+    print(f"CNN API 호출 실패 (HTTP Status: {res.status_code}). 기존 데이터를 유지합니다.")
     sys.exit(0)
 
 except Exception as e:
-    print(f"스크래핑 예외 발생: {e}. 기존 JSON 데이터를 유지합니다.")
+    print(f"스크래핑 예외 발생: {e}. 기존 데이터를 유지합니다.")
     sys.exit(0)
