@@ -2,9 +2,9 @@ name: Update Fear and Greed Index
 
 on:
   schedule:
-    # UTC 기준 21:00 = 한국 시간(KST) 오전 6:00 (화~토 실행)
-    - cron: '0 21 * * 1-5'
-  workflow_dispatch: # 깃허브 웹에서 수동 실행 버튼 활성화
+    # 매 시간 정각 실행 (UTC 기준 24시간 매시간 실행)
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   update-data:
@@ -34,5 +34,4 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add fg_data.json
-        # 수치가 바뀌어 diff가 있을 때만 커밋 발행
         git diff --quiet && git diff --staged --quiet || (git commit -m "Update F&G index" && git push)
