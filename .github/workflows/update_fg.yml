@@ -2,7 +2,6 @@ name: Update Fear and Greed Index
 
 on:
   schedule:
-    # 매 시간 정각 실행 (UTC 기준 24시간 매시간 실행)
     - cron: '0 * * * *'
   workflow_dispatch:
 
@@ -14,10 +13,10 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
@@ -34,4 +33,9 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add fg_data.json
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update F&G index" && git push)
+        if ! git diff --staged --quiet; then
+          git commit -m "Update F&G index"
+          git push
+        else
+          echo "No changes to commit"
+        fi
